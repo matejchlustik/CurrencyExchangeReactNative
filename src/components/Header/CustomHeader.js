@@ -27,7 +27,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#fff',
         height: 100,
-        alignItems: 'flex-end'
+        alignItems: 'flex-end',
+        borderBottomWidth: 0.5
     },
     headerInner: {
         height: '70%',

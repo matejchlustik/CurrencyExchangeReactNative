@@ -1,60 +1,75 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { FlatList, StyleSheet, Text, View, TouchableHighlight, ActivityIndicator } from 'react-native';
 
 import useFetch from '../../hooks/useFetch';
 import { ActiveCurrencyContext } from '../../contexts/ActiveCurrencyContext';
+import { SearchContext } from '../../contexts/SearchContext';
 
+export default function HomeScreen() {
 
+    const [data, setData] = useState(null);
 
-export default function HomeScreen({ navigation }) {
-
+    const { searchQuery } = useContext(SearchContext);
     const { activeCurrency, activeCurrencyExchange, setActiveCurrencyExchange } = useContext(ActiveCurrencyContext);
 
-    const { data: exchangeRates, isPending: exchangeRatesPending, error: exchangeRatesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${activeCurrency}.json`);
-    const { data: currencies, isPending: currenciesPending, error: currenciesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json`);
-
+    const { data: allExchangeRates, isPending: allExchangeRatesPending, error: allExchangeRatesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${activeCurrency}.json`);
+    const { data: allCurrencies, isPending: allCurrenciesPending, error: allCurrenciesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json`);
 
     useEffect(() => {
-        if (currencies && exchangeRates[activeCurrency]) {
+        if (allCurrencies && allExchangeRates[activeCurrency]) {
             const temp = {};
-            Object.entries(currencies).forEach(currency => {
+            Object.entries(allCurrencies).forEach(currency => {
                 temp[currency[0]] = { "currency": currency[1] };
                 temp[currency[0]].short = currency[0];
             });
-            Object.entries(exchangeRates[activeCurrency]).forEach(exchangeRate => {
+            Object.entries(allExchangeRates[activeCurrency]).forEach(exchangeRate => {
                 temp[exchangeRate[0]].exchangeRate = exchangeRate[1];
             });
             setActiveCurrencyExchange(Object.values(temp));
+            setData(Object.values(temp));
         }
-    }, [exchangeRates, activeCurrency, currencies]);
+    }, [allExchangeRates, activeCurrency, allCurrencies]);
+
+    useEffect(() => {
+        if (!searchQuery) {
+            setData(activeCurrencyExchange);
+        } else if (activeCurrencyExchange && searchQuery) {
+            const results = activeCurrencyExchange.filter(element => {
+                return (element.currency.toLowerCase().includes(searchQuery.toLowerCase()) || element.short.toLowerCase().includes(searchQuery.toLowerCase()));
+            })
+            if (results.length === 0) {
+                setData(null)
+            } else {
+                setData(results);
+            }
+        }
+    }, [searchQuery]);
 
     const renderItem = ({ item }) => (
-        <TouchableHighlight underlayColor={"#f5f5f5"} onPress={() => navigation.navigate("ExchangeDetail", { item })} activeOpacity={0.4}>
-            <View style={styles.itemContainer}>
-                <Text style={styles.itemShort}>{item.short.toUpperCase()} </Text>
-                <Text style={styles.item}>{item.currency} </Text>
-                <Text style={styles.item}>{item.exchangeRate} </Text>
-            </View>
-        </TouchableHighlight>
+        <View style={styles.itemContainer}>
+            <Text style={styles.itemShort}>{item.short.toUpperCase()} </Text>
+            <Text style={styles.item}>{item.currency} </Text>
+            <Text style={styles.item}>{item.exchangeRate} </Text>
+        </View>
     )
 
     return (
         <View style={styles.container}>
-            {!exchangeRatesPending && !currenciesPending && !exchangeRatesError && !exchangeRatesError ?
+            {!allExchangeRatesPending && !allCurrenciesPending && !allExchangeRatesError && !allExchangeRatesError ?
                 <FlatList
-                    data={activeCurrencyExchange}
+                    data={data}
                     renderItem={renderItem}
                     keyExtractor={item => item.short}
                     showsVerticalScrollIndicator={false}
                 />
                 :
-                currenciesError || exchangeRatesError ?
-                    <View>
+                allCurrenciesError || allExchangeRatesError ?
+                    <View style={styles.infoContainer}>
                         <Text>Something went wrong</Text>
                     </View>
                     :
-                    <View>
+                    <View style={styles.infoContainer}>
                         <ActivityIndicator size="large" color="#172b6b" />
                     </View>
             }
@@ -74,6 +89,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 18,
         alignItems: 'center',
+    },
+    infoContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1
     },
     item: {
         marginLeft: 12,

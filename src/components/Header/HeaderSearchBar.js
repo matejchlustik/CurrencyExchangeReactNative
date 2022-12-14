@@ -2,63 +2,22 @@ import { View, Text, StyleSheet, TextInput, FlatList, TouchableHighlight, Keyboa
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
-import { ActiveCurrencyContext } from '../../contexts/ActiveCurrencyContext';
+import { SearchContext } from '../../contexts/SearchContext';
 
-export default function SearchBar({ navigation }) {
-    const { activeCurrencyExchange } = useContext(ActiveCurrencyContext);
+export default function SearchBar() {
 
-    const [searchQuery, setSearchQuery] = useState(null);
-    const [searchResults, setSearchResults] = useState(null);
-
-    const [isFocused, setIsFocused] = useState(null);
-    const textInputRef = useRef(null);
-
-
-    useEffect(() => {
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
-                textInputRef.current.blur();
-                setSearchResults(null);
-                setIsFocused(false);
-            }
-        );
-        return () => {
-            keyboardDidHideListener.remove();
-        };
-    }, []);
-
-    useEffect(() => {
-        if (activeCurrencyExchange && searchQuery && isFocused) {
-            const results = activeCurrencyExchange.filter(element => {
-                return (element.currency.toLowerCase().includes(searchQuery.toLowerCase()) || element.short.toLowerCase().includes(searchQuery.toLowerCase()));
-            })
-            if (results.length === 0) {
-                setSearchResults(null)
-            } else {
-                setSearchResults(results);
-            }
-
-        }
-
-    }, [searchQuery, isFocused]);
+    const { searchQuery, setSearchQuery } = useContext(SearchContext);
+    const [inputVal, setInputVal] = useState(null);
 
     const onChangeText = value => {
-        if (value == "") {
-            setSearchResults(null);
+        if (value == '') {
+            setInputVal(null)
             setSearchQuery(null);
         } else {
+            setInputVal(value);
             setSearchQuery(value);
         }
     }
-
-    const renderItem = ({ item }) => (
-        <TouchableHighlight underlayColor={"#ebebeb"} onPress={() => navigation.navigate("ExchangeDetail", { item })} activeOpacity={0.4}>
-            <View style={styles.searchResultItem}>
-                <Text style={styles.item}>{item.short.toUpperCase()} </Text>
-            </View>
-        </TouchableHighlight>
-    )
 
     return (
         <View style={styles.container}>
@@ -66,24 +25,16 @@ export default function SearchBar({ navigation }) {
                 <Ionicons style={styles.icon} name="search" size={24} color="#4a4a4a" />
                 <TextInput style={styles.input}
                     onChangeText={onChangeText}
-                    value={searchQuery}
-                    ref={textInputRef}
-                    onFocus={() => { setIsFocused(true) }}
+                    value={inputVal}
                 />
-                <Ionicons style={[styles.icon, searchQuery ? styles.searchQueryTrue : styles.searchQueryFalse]} name="close" size={24} color="#4a4a4a" onPress={() => { setSearchQuery(null); Keyboard.dismiss(); }} />
+                <Ionicons
+                    style={[styles.icon, searchQuery ? styles.searchQueryTrue : styles.searchQueryFalse]}
+                    name="close"
+                    size={24}
+                    color="#4a4a4a"
+                    onPress={() => { setSearchQuery(null); setInputVal(null) }}
+                />
             </View>
-            {searchResults ?
-                <View style={styles.containerSearchResults}>
-                    <FlatList
-                        data={searchResults}
-                        renderItem={renderItem}
-                        keyExtractor={item => item.short}
-                        showsVerticalScrollIndicator={false}
-                        keyboardShouldPersistTaps={'handled'}
-
-                    />
-                </View>
-                : null}
         </View>
     )
 }
@@ -107,7 +58,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         backgroundColor: '#f5f5f5',
         width: '100%',
-        maxHeight: 450,
+        maxHeight: 375,
         top: '70%',
         borderWidth: 1,
         borderTopWidth: 0,
@@ -133,5 +84,11 @@ const styles = StyleSheet.create({
     },
     searchQueryFalse: {
         opacity: 0
+    },
+    searchResultsVisible: {
+        display: 'flex'
+    },
+    searchResultsNonVisible: {
+        display: 'none'
     }
 })

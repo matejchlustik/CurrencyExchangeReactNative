@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { FlatList, StyleSheet, Text, View, TouchableHighlight, ActivityIndicator } from 'react-native';
+import { FlatList, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 
 import useFetch from '../../hooks/useFetch';
 import { ActiveCurrencyContext } from '../../contexts/ActiveCurrencyContext';
@@ -11,9 +11,9 @@ export default function HomeScreen() {
     const [data, setData] = useState(null);
 
     const { searchQuery } = useContext(SearchContext);
-    const { activeCurrency, activeCurrencyExchange, setActiveCurrencyExchange } = useContext(ActiveCurrencyContext);
+    const { activeCurrency } = useContext(ActiveCurrencyContext);
 
-    const { data: allExchangeRates, isPending: allExchangeRatesPending, error: allExchangeRatesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${activeCurrency}.json`);
+    const { data: allExchangeRates, isPending: allExchangeRatesPending, error: allExchangeRatesError, setData: setAllExchangeRates } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${activeCurrency}.json`);
     const { data: allCurrencies, isPending: allCurrenciesPending, error: allCurrenciesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json`);
 
     useEffect(() => {
@@ -26,16 +26,16 @@ export default function HomeScreen() {
             Object.entries(allExchangeRates[activeCurrency]).forEach(exchangeRate => {
                 temp[exchangeRate[0]].exchangeRate = exchangeRate[1];
             });
-            setActiveCurrencyExchange(Object.values(temp));
+            setAllExchangeRates(Object.values(temp));
             setData(Object.values(temp));
         }
     }, [allExchangeRates, activeCurrency, allCurrencies]);
 
     useEffect(() => {
         if (!searchQuery) {
-            setData(activeCurrencyExchange);
-        } else if (activeCurrencyExchange && searchQuery) {
-            const results = activeCurrencyExchange.filter(element => {
+            setData(allExchangeRates);
+        } else if (allExchangeRates && searchQuery) {
+            const results = allExchangeRates.filter(element => {
                 return (element.currency.toLowerCase().includes(searchQuery.toLowerCase()) || element.short.toLowerCase().includes(searchQuery.toLowerCase()));
             })
             if (results.length === 0) {

@@ -12,12 +12,11 @@ const Stack = createNativeStackNavigator();
 export default function App() {
 
   const [activeCurrency, setActiveCurrency] = useState('eur');
-  const [activeCurrencyExchange, setActiveCurrencyExchange] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
 
   return (
     <SearchContext.Provider value={{ searchQuery, setSearchQuery }}>
-      <ActiveCurrencyContext.Provider value={{ activeCurrency, setActiveCurrency, activeCurrencyExchange, setActiveCurrencyExchange }}>
+      <ActiveCurrencyContext.Provider value={{ activeCurrency, setActiveCurrency }}>
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={({ navigation }) => ({

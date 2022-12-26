@@ -10,11 +10,6 @@ export default function CustomHeader(props) {
     return (
         <View style={styles.headerOuter}>
             <View style={styles.headerInner}>
-                {props.navigation.canGoBack() ?
-                    <TouchableHighlight style={styles.headerBackButton} onPress={props.navigation.goBack} underlayColor={"#f5f5f5"} activeOpacity={0.4}>
-                        <Ionicons name="arrow-back" size={32} color="#4a4a4a" />
-                    </TouchableHighlight>
-                    : null}
                 <SearchBar navigation={props.navigation} />
                 <HeaderPicker />
             </View>
@@ -37,9 +32,4 @@ const styles = StyleSheet.create({
         padding: 10,
         alignItems: 'center',
     },
-    headerBackButton: {
-        alignItems: 'center',
-        flex: 0.8,
-        marginLeft: -6
-    }
 })

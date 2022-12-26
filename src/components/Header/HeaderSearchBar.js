@@ -54,30 +54,13 @@ const styles = StyleSheet.create({
         padding: 4,
         alignItems: 'center'
     },
-    containerSearchResults: {
-        position: 'absolute',
-        backgroundColor: '#f5f5f5',
-        width: '100%',
-        maxHeight: 375,
-        top: '70%',
-        borderWidth: 1,
-        borderTopWidth: 0,
-        borderColor: '#cccccc',
-    },
     input: {
         fontSize: 18,
         flex: 6,
     },
-    item: {
-        fontSize: 16,
-        padding: 8
-    },
     icon: {
         flex: 1,
         marginLeft: 4,
-    },
-    searchResultItem: {
-        fontSize: 30
     },
     searchQueryTrue: {
         opacity: 1
@@ -85,10 +68,4 @@ const styles = StyleSheet.create({
     searchQueryFalse: {
         opacity: 0
     },
-    searchResultsVisible: {
-        display: 'flex'
-    },
-    searchResultsNonVisible: {
-        display: 'none'
-    }
 })

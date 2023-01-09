@@ -17,7 +17,7 @@ export default function HomeScreen() {
     const { data: allCurrencies, isPending: allCurrenciesPending, error: allCurrenciesError } = useFetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json`);
 
     useEffect(() => {
-        if (allCurrencies && allExchangeRates[activeCurrency]) {
+        if (allCurrencies && allExchangeRates && allExchangeRates[activeCurrency]) {
             const temp = {};
             Object.entries(allCurrencies).forEach(currency => {
                 temp[currency[0]] = { "currency": currency[1] };
@@ -62,6 +62,9 @@ export default function HomeScreen() {
                     renderItem={renderItem}
                     keyExtractor={item => item.short}
                     showsVerticalScrollIndicator={false}
+                    initialNumToRender={5}
+                    maxToRenderPerBatch={10}
+                    windowSize={10}
                 />
                 :
                 allCurrenciesError || allExchangeRatesError ?
